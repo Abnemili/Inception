@@ -1,0 +1,16 @@
+[mysqld]
+user            = mysql
+pid-file        = /run/mysqld/mysqld.pid
+socket          = /run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+port            = 3306
+
+# Listen on every interface so the wordpress container can reach us.
+# Debian's default is 127.0.0.1, which would make the service unreachable.
+bind-address    = 0.0.0.0
+
+# Containers have no reverse DNS; skipping the lookup avoids slow connects.
+skip-name-resolve
+
+character-set-server = utf8mb4
+collation-server     = utf8mb4_general_ci
