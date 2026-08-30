@@ -1,7 +1,7 @@
 # Inception — defense guide
 
 Every command below has been checked against this repository. Run them from
-`ft_inception/`.
+the repository root.
 
 ## 0. One-time, before the evaluator arrives
 
@@ -22,7 +22,7 @@ If it is missing, copy `srcs/.env.example` to `srcs/.env` and fill in the values
 ## 1. The only four commands you need
 
 ```bash
-cd ~/Desktop/Inception/ft_inception
+cd ~/Desktop/Inception
 
 make          # build the images and start everything
 make down     # stop and remove the containers
