@@ -1,4 +1,0 @@
-# Credentials never belong in the repository. Copy srcs/.env.example to
-# srcs/.env and fill it in locally; the subject fails the project outright
-# if real passwords are found in git.
-srcs/.env

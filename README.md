@@ -96,8 +96,8 @@ forbidden service-level form, - /home/abnemili/data/mariadb:/var/lib/mysql.
 * MariaDB Knowledge Base: mariadb-install-db, --init-file, system variables
 * WP-CLI handbook: core install, config create, user create
 * nginx docs: ssl_protocols, FastCGI parameters
-* php-fpm pool configuration in the PHP manual
+* php-fpm pool vconfiguration in the PHP manual
 
-AI use: I used an AI assistant to check my files against the subject, shorten
-the config files, and draft these three documents. I reviewed and tested
-everything myself, and the design choices above are mine to defend.
+AI use: I used an AI assistant to check my steps against the subject, shorten
+the way of learing about the commands, I reviewed and tested everything myself, and the design choices above are mine to defend.
+
