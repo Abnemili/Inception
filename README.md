@@ -1,31 +1,61 @@
 *This project has been created as part of the 42 curriculum by abnemili.*
 
-# Inception
+# Inception — a WordPress stack from scratch with Docker
+
+**A small production-style web infrastructure: nginx, WordPress and MariaDB, each in its own container built from my own Dockerfile, connected on a private network and started with one `make`.** No ready-made images: every service starts from `debian:bookworm`.
+
+![Docker](https://img.shields.io/badge/Docker-2496ed?logo=docker&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ed?logo=docker&logoColor=white)
+![nginx](https://img.shields.io/badge/nginx-009639?logo=nginx&logoColor=white)
+![MariaDB](https://img.shields.io/badge/MariaDB-003545?logo=mariadb&logoColor=white)
+![WordPress](https://img.shields.io/badge/WordPress-21759b?logo=wordpress&logoColor=white)
+![Debian](https://img.shields.io/badge/Debian_bookworm-a81d33?logo=debian&logoColor=white)
 
 ## Description
 
-A small WordPress infrastructure built with Docker Compose. Three services, one
-container each, all from my own Dockerfiles:
+Three services, one container each, all from my own Dockerfiles:
 
-* nginx, TLSv1.2/1.3 only, port 443, the only container reachable from the host
-* wordpress + php-fpm, port 9000, internal
-* mariadb, port 3306, internal
+* **nginx**: TLSv1.2/1.3 only, port 443. The only container reachable from the host.
+* **wordpress + php-fpm**: port 9000, internal only.
+* **mariadb**: port 3306, internal only.
 
-Site files and database live on two named volumes under /home/abnemili/data, so
-they survive a restart.
+```text
+              host
+               │  https :443  (the only open port)
+               ▼
+        ┌─────────────┐   FastCGI :9000   ┌──────────────────┐    SQL :3306    ┌───────────┐
+        │    nginx    │ ────────────────► │ wordpress + fpm  │ ──────────────► │  mariadb  │
+        │  TLS 1.2/1.3│                   │                  │                 │           │
+        └─────────────┘                   └──────────────────┘                 └───────────┘
+               │                                   │                                 │
+               └──────── wordpress_data ───────────┘                          mariadb_data
+                    (shared site files)                                  (database files)
+
+                      all three on the private "inception_network" bridge
+```
+
+Site files and the database live on two named volumes under `/home/abnemili/data`, so they survive restarts and rebuilds.
+
+### Highlights
+
+* **Real PID 1 processes.** Each entrypoint ends in `exec`, so nginx, php-fpm and mysqld receive signals directly, and `restart: always` actually works. There are no `tail -f` or `sleep infinity` tricks.
+* **Idempotent setup.** The first start installs WordPress and creates the database and users. Later starts detect the existing data and reuse it.
+* **No secrets in images.** Every password comes from `srcs/.env`, which is gitignored. `srcs/.env.example` lists only the key names.
+* **One way in.** Only port 443 is published. The database and php-fpm are reachable only inside the Docker network, by service name.
 
 ## Instructions
 
 ```bash
 echo "127.0.0.1  abnemili.42.fr" | sudo tee -a /etc/hosts
 cp srcs/.env.example srcs/.env      # then fill in every value
+chmod 600 srcs/.env
 make
 ```
 
 Open https://abnemili.42.fr and accept the self-signed certificate. Other
 targets: down, logs, ps, clean, fclean, re. See USER_DOC.md and DEV_DOC.md.
 
-## Project description
+## Project structure and design choices
 
 srcs/docker-compose.yml declares the services, the network and the volumes.
 Each service has a folder in srcs/requirements/ holding its Dockerfile, its
@@ -96,8 +126,9 @@ forbidden service-level form, - /home/abnemili/data/mariadb:/var/lib/mysql.
 * MariaDB Knowledge Base: mariadb-install-db, --init-file, system variables
 * WP-CLI handbook: core install, config create, user create
 * nginx docs: ssl_protocols, FastCGI parameters
-* php-fpm pool vconfiguration in the PHP manual
+* php-fpm pool configuration in the PHP manual
 
-AI use: I used an AI assistant to check my steps against the subject, shorten
-the way of learing about the commands, I reviewed and tested everything myself, and the design choices above are mine to defend.
+AI use: I used an AI assistant to check my steps against the subject and to learn
+the commands faster. I reviewed and tested everything myself, and the design
+choices above are mine to defend.
 
